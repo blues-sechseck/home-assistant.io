@@ -1,0 +1,91 @@
+blueprint:
+  name: Switch a Mitsubishi WF-RAC airco off while a window is open
+  description: >
+    The unit keeps running against an open window on its own, because it only
+    measures the air at its own return grille. This switches it off once a
+    window has been open for a while, and optionally turns it back on when the
+    window closes again.
+  domain: automation
+  author: blues-sechseck
+  homeassistant:
+    min_version: 2024.10.0
+
+  input:
+    airco:
+      name: Airco
+      description: The Mitsubishi WF-RAC unit to switch off.
+      selector:
+        entity:
+          filter:
+            - integration: mitsubishi_wf_rac
+              domain: climate
+
+    window:
+      name: Window
+      description: >
+        The window sensor to watch. Pick several to cover a room with more
+        than one window.
+      selector:
+        entity:
+          multiple: true
+          filter:
+            - domain: binary_sensor
+              device_class: window
+            - domain: binary_sensor
+              device_class: opening
+
+    open_delay:
+      name: Open for
+      description: >
+        How long the window has to stay open before the unit is switched off,
+        so a quick airing does not interrupt it.
+      default:
+        minutes: 2
+      selector:
+        duration:
+
+    resume:
+      name: Turn back on when the window closes
+      description: >
+        The unit returns to the mode and setpoint it had. Leave this off if you
+        would rather decide yourself when it starts again.
+      default: true
+      selector:
+        boolean:
+
+variables:
+  resume: !input resume
+
+triggers:
+  - trigger: state
+    entity_id: !input window
+    to: "on"
+    for: !input open_delay
+    id: opened
+  - trigger: state
+    entity_id: !input window
+    to: "off"
+    id: closed
+
+actions:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: opened
+        sequence:
+          - action: climate.turn_off
+            target:
+              entity_id: !input airco
+      - conditions:
+          - condition: trigger
+            id: closed
+          - "{{ resume }}"
+          # Every window has to be closed again, not just the one that
+          # triggered this.
+          - condition: state
+            entity_id: !input window
+            state: "off"
+        sequence:
+          - action: climate.turn_on
+            target:
+              entity_id: !input airco

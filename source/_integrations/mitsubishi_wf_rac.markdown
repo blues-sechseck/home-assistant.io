@@ -89,6 +89,8 @@ A separate room sensor is the better trigger, so the unit only starts when the r
 - **Condition**: Numeric state: bedroom temperature above 23 °C
 - **Action**: Climate: Set target temperature to 22 °C in cool mode
 
+{% my blueprint_import badge blueprint_url="https://www.home-assistant.io/blueprints/integrations/mitsubishi_wf_rac_precool_with_room_sensor.yaml" %}
+
 {% details "YAML example for pre-cooling the bedroom" %}
 
 {% example %}
@@ -119,6 +121,8 @@ The unit keeps running against an open window on its own. Give it a couple of mi
 - **Trigger**: State: bedroom window open for 2 minutes
 - **Action**: Climate: Turn off
 
+{% my blueprint_import badge blueprint_url="https://www.home-assistant.io/blueprints/integrations/mitsubishi_wf_rac_off_with_open_window.yaml" %}
+
 {% details "YAML example for switching off with the window open" %}
 
 {% example %}
@@ -144,6 +148,8 @@ On units that report it, Home Leave keeps the room within a wide band rather tha
 - **Trigger**: State: person away from home for 30 minutes
 - **Condition**: The living room unit is not off
 - **Action**: Climate: Set preset mode to `away`
+
+{% my blueprint_import badge blueprint_url="https://www.home-assistant.io/blueprints/integrations/mitsubishi_wf_rac_home_leave_while_away.yaml" %}
 
 {% details "YAML example for falling back to Home Leave" %}
 
