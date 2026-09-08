@@ -35,11 +35,9 @@ The module is the requirement, not the indoor unit: a unit that works with the S
 
 {% include integrations/config_flow.md %}
 
-Units on the same network are discovered automatically and appear as discovered devices. Confirm one and give it a name.
+Units on the same network are discovered automatically and appear as discovered devices. Confirm one to add it.
 
 {% configuration_basic %}
-Name:
-  description: "The name the airco gets in Home Assistant. It names the device and prefixes the entities belonging to it."
 Host:
   description: "The local IP address of the airco's wireless module."
 Port:
@@ -63,8 +61,6 @@ Target Temp. Offset (Heating):
   description: "Overrides the general target offset for heat mode. Leave empty to use the general offset for heat too."
 Indoor Temp. Sensor Offset:
   description: "Added to the unit's own indoor reading before it is shown. Display only; it does not change what the unit does."
-Outdoor Temp. Sensor Offset:
-  description: "The same, for the outdoor temperature the unit reports."
 {% endconfiguration_basic %}
 
 ## Supported functionality
