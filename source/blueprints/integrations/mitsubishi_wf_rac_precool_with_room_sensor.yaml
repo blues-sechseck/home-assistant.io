@@ -57,25 +57,29 @@ blueprint:
     threshold:
       name: Threshold
       description: >
-        The room temperature that decides whether the unit is needed at all.
+        The room temperature that decides whether the unit is needed at all,
+        in the temperature unit your Home Assistant is set to.
       default: 23
       selector:
         number:
           min: 5
           max: 35
           step: 0.5
-          unit_of_measurement: "°C"
+          mode: box
 
     target_temperature:
       name: Target temperature
-      description: The setpoint to send once the unit starts.
+      description: >
+        The setpoint to send once the unit starts, in the temperature unit
+        your Home Assistant is set to. Each mode has its own range on the
+        unit, so a value at either extreme may be refused.
       default: 22
       selector:
         number:
-          min: 10
-          max: 33
+          min: 16
+          max: 30
           step: 0.5
-          unit_of_measurement: "°C"
+          mode: box
 
 variables:
   mode: !input mode
@@ -87,11 +91,14 @@ triggers:
     at: !input start_time
 
 conditions:
-  # Cooling wants the room above the threshold, heating below it.
+  # Cooling wants the room above the threshold, heating below it. A sensor
+  # that cannot be read falls back to the threshold itself, which makes both
+  # tests false - the usual 0 would be below every sensible heating threshold
+  # and would start the unit on a dead battery.
   - >-
     {{
-      (mode == 'cool' and states(room_sensor) | float(0) > threshold)
-      or (mode == 'heat' and states(room_sensor) | float(0) < threshold)
+      (mode == 'cool' and states(room_sensor) | float(threshold) > threshold)
+      or (mode == 'heat' and states(room_sensor) | float(threshold) < threshold)
     }}
 
 actions:

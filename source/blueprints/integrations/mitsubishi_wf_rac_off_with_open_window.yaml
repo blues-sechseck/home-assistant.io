@@ -3,8 +3,11 @@ blueprint:
   description: >
     The unit keeps running against an open window on its own, because it only
     measures the air at its own return grille. This switches it off once a
-    window has been open for a while, and optionally turns it back on when the
-    window closes again.
+    window has been open for a while.
+
+    It does not switch the unit back on afterwards. Nothing in the state tells
+    it whether the unit was running before the window opened, so it would just
+    as often start a unit that was deliberately off.
   domain: automation
   author: blues-sechseck
   homeassistant:
@@ -44,48 +47,13 @@ blueprint:
       selector:
         duration:
 
-    resume:
-      name: Turn back on when the window closes
-      description: >
-        The unit returns to the mode and setpoint it had. Leave this off if you
-        would rather decide yourself when it starts again.
-      default: true
-      selector:
-        boolean:
-
-variables:
-  resume: !input resume
-
 triggers:
   - trigger: state
     entity_id: !input window
     to: "on"
     for: !input open_delay
-    id: opened
-  - trigger: state
-    entity_id: !input window
-    to: "off"
-    id: closed
 
 actions:
-  - choose:
-      - conditions:
-          - condition: trigger
-            id: opened
-        sequence:
-          - action: climate.turn_off
-            target:
-              entity_id: !input airco
-      - conditions:
-          - condition: trigger
-            id: closed
-          - "{{ resume }}"
-          # Every window has to be closed again, not just the one that
-          # triggered this.
-          - condition: state
-            entity_id: !input window
-            state: "off"
-        sequence:
-          - action: climate.turn_on
-            target:
-              entity_id: !input airco
+  - action: climate.turn_off
+    target:
+      entity_id: !input airco
